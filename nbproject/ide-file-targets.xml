@@ -3,102 +3,80 @@
      Netbeans debug targets are now held in this file.
     -->
 <project basedir=".." name="SIP Communicator-IDE">
-
     <import file="../build.xml"/>
-
-    <target name="debug-selected-file-in-test"
-            depends="prepare-local-accounts,prepare-all-tests,deploy-os-specific-bundles"
-            description="Starts felix and debugs the selected Service Impl Compatibility Kit" >
+    <target depends="prepare-local-accounts,prepare-all-tests,deploy-os-specific-bundles" description="Starts felix and debugs the selected Service Impl Compatibility Kit" name="debug-selected-file-in-test">
         <!-- This target runs felix under the debugger, but it can only work with
              unit test classes that extend TestSuite and implements BundleActivator
              e.g. GibberishProtocolProviderServiceLick -->
-
         <!-- if 'test.name' property is not defined, we will be
              runing all tests defined in testing.properties. -->
-
         <!-- we allow users to pass command line args using the "args" system
              property. However we need to manually set tha prop to an empty
              string here or otherwise the application would get an argument with
              the value ${args}-->
         <property name="args" value=""/>
-
-        <nbjpdastart name="${short.test.name}"
-                     addressproperty="jpda.address"
-                     transport="dt_socket" >
-            <classpath refid="debug.class.path" />
-            <sourcepath refid="project.source.path" />
+        <nbjpdastart addressproperty="jpda.address" name="${short.test.name}" transport="dt_socket">
+            <classpath refid="debug.class.path"/>
+            <sourcepath refid="project.source.path"/>
         </nbjpdastart>
-
         <!-- fork=true no longer prevents debug break points latching... -->
-        <java fork="true"
-              classname="org.apache.felix.main.Main"
-              resultproperty="test.result.code"
-              failonerror="true" >
-
+        <java classname="org.apache.felix.main.Main" failonerror="true" fork="true" resultproperty="test.result.code">
             <classpath refid="debug.class.path"/>
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
-
             <!-- Tell felix to run as a test environment-->
-            <sysproperty key="felix.config.properties"
-                         value="file:${lib}/felix.unit.test.properties"/>
-
+            <sysproperty key="felix.config.properties" value="file:${lib}/felix.unit.test.properties"/>
             <!-- Tell the slick runner where to store test results. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
-                         value="${test.reports.dir}"/>
-
+            <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR" value="${test.reports.dir}"/>
             <!-- Tell the slick runner which Test classes to run. -->
-            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
-                         value="${net.java.sip.communicator.slick.runner.TEST_LIST}"/>
-
+            <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST" value="${net.java.sip.communicator.slick.runner.TEST_LIST}"/>
             <!-- use a meta contact list file different to normal client. -->
-            <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME"
-                         value="net.java.sip.communicator.CONTACTLIST_FILE_NAME"/>
+            <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME" value="net.java.sip.communicator.CONTACTLIST_FILE_NAME"/>
             <!-- use a configuration file different to normal client. -->
-            <sysproperty key="net.java.sip.communicator.CONFIGURATION_FILE_NAME"
-                         value="net.java.sip.communicator.CONFIGURATION_FILE_NAME"/>
-
+            <sysproperty key="net.java.sip.communicator.CONFIGURATION_FILE_NAME" value="net.java.sip.communicator.CONFIGURATION_FILE_NAME"/>
             <!-- Tell java.util.logging about our logging preferences -->
-            <sysproperty key="java.util.logging.config.file"
-                value="${lib}/logging.properties"/>
-
+            <sysproperty key="java.util.logging.config.file" value="${lib}/logging.properties"/>
             <!-- Tell all protocol testers their account details. -->
             <syspropertyset id="accounts">
-              <propertyref prefix="accounts"/>
-              <propertyref prefix="net"/>
+                <propertyref prefix="accounts"/>
+                <propertyref prefix="net"/>
             </syspropertyset>
-
-            <sysproperty key="java.net.preferIPv6Addresses"
-                value="false"/>
+            <sysproperty key="java.net.preferIPv6Addresses" value="false"/>
         </java>
-
         <!-- Generate the html junit report.
              Run it quietly (i.e. redirect the output) because we don't won't to
              see its "Build Successful" output line as users might confuse it
              for a general build success while this might not be the case.-->
         <echo message="Generating single test report ..."/>
-        <java fork="true"
-              classname="org.apache.tools.ant.launch.Launcher"
-              classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant"
-              failonerror="true"
-              output="${test.html.reports.dir}/output.txt">
+        <java classname="org.apache.tools.ant.launch.Launcher" classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant" failonerror="true" fork="true" output="${test.html.reports.dir}/output.txt">
             <arg value="htmlreport"/>
         </java>
         <echo message="Done."/>
-        <echo/><echo/>
+        <echo/>
+        <echo/>
         <echo message="Test results available in ./test-reports/html/index.html "/>
         <echo/>
-
         <!-- Check whether testing went alright and fail if not.-->
         <condition property="testing.failed">
-          <not>
-            <equals arg1="0"
-            arg2="${test.result.code}"
-            casesensitive="false" trim="true"/>
-          </not>
+            <not>
+                <equals arg1="0" arg2="${test.result.code}" casesensitive="false" trim="true"/>
+            </not>
         </condition>
         <fail if="testing.failed"/>
     </target>
-
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#runsingle) -->
+    <target name="run-selected-file-in-src">
+        <fail unless="run.class">Must set property 'run.class'</fail>
+        <ant antfile="build.xml" inheritall="false">
+            <target name="deploy-os-specific-bundles"/>
+            <target name="load-properties"/>
+        </ant>
+        <java classname="${run.class}" failonerror="true" fork="true">
+            <classpath>
+                <pathelement path="lib/felix.jar:lib/bundle/commons-logging.jar:lib/bundle/junit.jar:lib/bundle/log4j.jar:lib/installer-exclude/apache-ant-1.7.0.jar:lib/installer-exclude/dhcp4java-1.00.jar:lib/installer-exclude/dict4j.jar:lib/installer-exclude/dnsjava.jar:lib/installer-exclude/fmj.jar:lib/installer-exclude/forms-1.2.1.jar:lib/installer-exclude/gdata-client-1.0.jar:lib/installer-exclude/gdata-client-meta-1.0.jar:lib/installer-exclude/gdata-contacts-3.0.jar:lib/installer-exclude/gdata-contacts-meta-3.0.jar:lib/installer-exclude/gdata-core-1.0.jar:lib/installer-exclude/google-collect-1.0-rc1.jar:lib/installer-exclude/hexdump-0.2.jar:lib/installer-exclude/httpclient-osgi-4.2.3.jar:lib/installer-exclude/httpcore-osgi-4.2.3.jar:lib/installer-exclude/ice4j.jar:lib/installer-exclude/irc-api-1.0.jar:lib/installer-exclude/jain-sdp.jar:lib/installer-exclude/jain-sip-api.jar:lib/installer-exclude/jain-sip-ri.jar:lib/installer-exclude/jdic_misc.jar:lib/installer-exclude/jfontchooser-1.0.5.jar:lib/installer-exclude/jmdns.jar:lib/installer-exclude/jml-1.0b5.jar:lib/installer-exclude/jmyspell-core.jar:lib/installer-exclude/jna.jar:lib/installer-exclude/jnsapi.jar:lib/installer-exclude/joscar-client.jar:lib/installer-exclude/joscar-common.jar:lib/installer-exclude/joscar-protocol.jar:lib/installer-exclude/jsch-0.1.36.jar:lib/installer-exclude/jsocks-klea.jar:lib/installer-exclude/json-simple-1.1.1.jar:lib/installer-exclude/jspeex.jar:lib/installer-exclude/junit.jar:lib/installer-exclude/laf-widget.jar:lib/installer-exclude/lcrypto-jdk16-143.jar:lib/installer-exclude/libdbus-java-2.7.jar:lib/installer-exclude/libjitsi.jar:lib/installer-exclude/log4j-1.2.8.jar:lib/installer-exclude/lti-civil-no_s_w_t.jar:lib/installer-exclude/mac_widgets-0.9.5.jar:lib/installer-exclude/nist-sdp-1.0.jar:lib/installer-exclude/otr4j.jar:lib/installer-exclude/pircbot.jar:lib/installer-exclude/profiler4j-1.0-beta3-SC.jar:lib/installer-exclude/sdes4j.jar:lib/installer-exclude/smack.jar:lib/installer-exclude/smackx.jar:lib/installer-exclude/swing-worker-1.2.jar:lib/installer-exclude/jna-platform.jar:lib/installer-exclude/unix-0.5.jar:lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar:lib/installer-exclude/ymsg_network_v0_67.jar:lib/installer-exclude/zrtp4j-light.jar:lib/installer-exclude/jcalendar-1.4.jar:lib/installer-exclude/bcpkix-jdk15on-151.jar:lib/installer-exclude/bcprov-jdk15on-151.jar:lib/installer-exclude/guava-15.0.jar:lib/installer-exclude/libphonenumber-5.9.jar:lib/installer-exclude/commons-lang3-3.1.jar:lib/installer-exclude/jmork-1.0.5-SNAPSHOT.jar:lib/os-specific/mac/growl4j.jar:lib/os-specific/mac/OrangeExtensions.jar:lib/os-specific/mac/installer-exclude/dock.jar"/>
+                <pathelement location="classes"/>
+            </classpath>
+        </java>
+    </target>
 </project>
-
