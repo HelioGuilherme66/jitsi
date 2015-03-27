@@ -152,6 +152,11 @@ public class ProtocolProviderServiceSipImpl
     private UserAgentHeader userAgentHeader = null;
 
     /**
+     * The Custom User Agent String to identify ourselves.
+     */
+    private String customUserAgentString = "007JamesBond";
+    
+    /**
      * The name that we want to send others when calling or chatting with them.
      */
     private String ourDisplayName = null;
@@ -2021,26 +2026,46 @@ public class ProtocolProviderServiceSipImpl
     {
         if(userAgentHeader == null)
         {
-            try
+            if(customUserAgentString == null)
             {
-                List<String> userAgentTokens = new LinkedList<String>();
+                try
+                {
+                    List<String> userAgentTokens = new LinkedList<String>();
 
-                Version ver =
-                        SipActivator.getVersionService().getCurrentVersion();
+                    Version ver =
+                            SipActivator.getVersionService().getCurrentVersion();
 
-                userAgentTokens.add(ver.getApplicationName());
-                userAgentTokens.add(ver.toString());
+                    userAgentTokens.add(ver.getApplicationName());
+                    userAgentTokens.add(ver.toString());
 
-                String osName = System.getProperty("os.name");
-                userAgentTokens.add(osName);
+                    String osName = System.getProperty("os.name");
+                    userAgentTokens.add(osName);
 
-                userAgentHeader
-                    = this.headerFactory.createUserAgentHeader(userAgentTokens);
+                    userAgentHeader
+                        = this.headerFactory.createUserAgentHeader(userAgentTokens);
+                }
+                catch (ParseException ex)
+                {
+                    //shouldn't happen
+                    return null;
+                }
             }
-            catch (ParseException ex)
+            else
             {
-                //shouldn't happen
-                return null;
+                try
+                {
+                    List<String> userAgentTokens = new LinkedList<String>();
+
+                    userAgentTokens.add(customUserAgentString);
+
+                    userAgentHeader
+                        = this.headerFactory.createUserAgentHeader(userAgentTokens);
+                }
+                catch (ParseException ex)
+                {
+                    //shouldn't happen
+                    return null;
+                }    
             }
         }
         return userAgentHeader;
