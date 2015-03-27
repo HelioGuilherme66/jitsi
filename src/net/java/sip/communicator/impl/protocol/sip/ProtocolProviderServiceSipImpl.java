@@ -149,9 +149,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The header that we use to identify ourselves.
      */
-    /* private UserAgentHeader userAgentHeader = null; */
-    
-    private UserAgentHeader userAgentHeader = "007Killer";
+    private UserAgentHeader userAgentHeader = null;
 
     /**
      * The name that we want to send others when calling or chatting with them.
