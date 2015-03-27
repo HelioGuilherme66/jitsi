@@ -244,9 +244,6 @@ public class OTRv3OutgoingSessionSwitcher
      */
     public void setCurrentContact(Contact contact, String resourceName)
     {
-        if (this.contact != null && this.contact.contact == contact)
-            return;
-
         if (resourceName == null)
         {
             this.contact =
@@ -433,6 +430,7 @@ public class OTRv3OutgoingSessionSwitcher
      */
     private void updateEnableStatus()
     {
-        this.menu.setVisible(this.menu.getItemCount() > 1);
+        this.menu.setEnabled(this.menu.getItemCount() > 1);
+        this.menu.setVisible(true);
     }
 }

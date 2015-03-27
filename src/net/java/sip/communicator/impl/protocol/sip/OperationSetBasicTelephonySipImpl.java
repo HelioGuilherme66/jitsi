@@ -1960,9 +1960,11 @@ public class OperationSetBasicTelephonySipImpl
     public String toString()
     {
         return getClass().getSimpleName() + "-[dn="
-            + protocolProvider.getOurDisplayName() + " addr=["
-            + protocolProvider.getRegistrarConnection().getAddressOfRecord()
-            + "]";
+            + protocolProvider.getOurDisplayName()
+            + (protocolProvider.getRegistrarConnection() != null ?
+                " addr=[" + protocolProvider.getRegistrarConnection()
+                    .getAddressOfRecord() + "]"
+                : "]");
     }
 
     /**
@@ -2165,7 +2167,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if the protocol provider that created us
      * is not registered.
      */
-    private void assertRegistered()
+    void assertRegistered()
         throws OperationFailedException
     {
         if(!protocolProvider.isRegistered())

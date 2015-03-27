@@ -61,6 +61,12 @@ public class CallSipImpl
             = "Jitsi-Conference-Room-Pass";
 
     /**
+     * Custom header included in initial desktop sharing call creation.
+     * Not included when we are upgrading an ongoing audio/video call.
+     */
+    public static final String DS_SHARING_HEADER = "X-Desktop-Share";
+
+    /**
      * When starting call we may have quality preferences we must use
      * for the call.
      */
@@ -291,12 +297,12 @@ public class CallSipImpl
                 logger.warn("Error getting media types", t);
             }
 
-            getParentOperationSet().fireCallEvent(
-                    incomingCall
-                        ? CallEvent.CALL_RECEIVED
-                        : CallEvent.CALL_INITIATED,
-                    this,
-                    mediaDirections);
+            fireCallEvent(
+                incomingCall
+                    ? CallEvent.CALL_RECEIVED
+                    : CallEvent.CALL_INITIATED,
+                this,
+                mediaDirections);
 
             if(hasZrtp)
             {
@@ -311,6 +317,45 @@ public class CallSipImpl
         }
 
         return callPeer;
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred.
+     * @param mediaDirections direction map for media types
+     */
+    protected void fireCallEvent(
+        int eventID,
+        Call sourceCall,
+        Map<MediaType, MediaDirection> mediaDirections)
+    {
+        CallEvent callEvent
+            = new CallEvent(sourceCall, eventID, mediaDirections);
+
+        // just checks for existence of the custom desktop share header
+        // and indicate it in the call event
+        if(sourceCall.getCallPeerCount() == 1)
+        {
+            CallSipImpl callSip = (CallSipImpl)sourceCall;
+
+            CallPeerSipImpl callPeer = callSip.getCallPeers().next();
+
+            Request request
+                = callPeer.getLatestInviteTransaction().getRequest();
+
+            Header dsHeader = request.getHeader(DS_SHARING_HEADER);
+
+            if(dsHeader != null)
+            {
+                callEvent.setDesktopStreaming(true);
+            }
+        }
+
+        getParentOperationSet().fireCallEvent(callEvent);
     }
 
     /**
