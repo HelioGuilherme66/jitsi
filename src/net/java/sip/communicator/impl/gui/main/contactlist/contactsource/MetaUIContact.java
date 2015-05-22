@@ -163,7 +163,8 @@ public class MetaUIContact
         if(parentGroup != null)
             groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup) 
                 * UIGroup.MAX_CONTACTS;
-        return  GuiActivator.getContactListService().getSourceIndex() 
+        return GuiActivator.getContactList()
+                .getMetaContactListSource().getIndex()
             * UIGroup.MAX_GROUPS + groupSourceIndex +
             parentMetaContactGroup.indexOf(metaContact) + 1;
     }
@@ -495,7 +496,9 @@ public class MetaUIContact
             String contactAddress = protocolContact.getAddress();
             //String statusMessage = protocolContact.getStatusMessage();
 
-            tip.addLine(protocolStatusIcon, contactAddress);
+            tip.addLine(
+                protocolStatusIcon,
+                filterAddressDisplay(contactAddress));
 
             addContactResourceTooltipLines(tip, protocolContact);
 
@@ -618,7 +621,7 @@ public class MetaUIContact
     {
         while(phones.hasNext())
         {
-            tip.addSubLine(null, phones.next(), 27);
+            tip.addSubLine(null, filterAddressDisplay(phones.next()), 27);
         }
 
         tip.revalidate();

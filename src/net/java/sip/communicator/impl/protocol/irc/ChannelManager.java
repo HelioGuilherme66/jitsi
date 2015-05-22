@@ -743,7 +743,7 @@ public class ChannelManager
                     // We aren't currently attempting to join, so this join is
                     // unannounced.
                     LOGGER.trace("Starting unannounced join of chat room '"
-                        + channelName);
+                        + channelName + "'");
                     // Assuming that at the time that NICKS_END_OF_LIST is
                     // propagated, the channel join event has been completely
                     // handled by IRCApi.
@@ -1149,10 +1149,21 @@ public class ChannelManager
          * onError stuff.
          */
         @Override
-        public void onError(ErrorMessage msg)
+        public void onError(final ErrorMessage msg)
         {
             this.presenceTaskTimer.cancel();
             super.onError(msg);
+        }
+
+        /**
+         * Event in case of client-side error. Cancel running timer then do the
+         * regular onClientError stuff.
+         */
+        @Override
+        public void onClientError(final ClientErrorMessage msg)
+        {
+            this.presenceTaskTimer.cancel();
+            super.onClientError(msg);
         }
 
         /**

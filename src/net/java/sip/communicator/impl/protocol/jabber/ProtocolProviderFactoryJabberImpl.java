@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
+import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.osgi.framework.*;
 
@@ -24,6 +25,39 @@ public class ProtocolProviderFactoryJabberImpl
      * Indicates if ICE should be used.
      */
     public static final String IS_USE_JINGLE_NODES = "JINGLE_NODES_ENABLED";
+
+    /**
+     * Our provider manager instances.
+     */
+    static ProviderManager providerManager = null;
+
+    static
+    {
+        try
+        {
+            ProviderManager.setInstance(new ProviderManagerExt());
+        }
+        catch(Throwable t)
+        {
+            // once loaded if we try to set instance second time
+            // IllegalStateException is thrown
+        }
+        finally
+        {
+            providerManager = ProviderManager.getInstance();
+        }
+
+        // checks class names, not using instanceof
+        // tests do unloading and loading the protocol bundle and
+        // ProviderManagerExt class get loaded two times from different
+        // classloaders
+        if (!(providerManager.getClass().getName()
+                .equals(ProviderManagerExt.class.getName())))
+        {
+            throw new RuntimeException(
+                "ProviderManager set to the default one");
+        }
+    }
 
     /**
      * Creates an instance of the ProtocolProviderFactoryJabberImpl.

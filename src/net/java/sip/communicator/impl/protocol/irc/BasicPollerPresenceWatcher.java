@@ -217,7 +217,8 @@ class BasicPollerPresenceWatcher
             // The ISON reply contains the most overhead, so base the maximum
             // number of nicks limit on that.
             final int maxQueryLength =
-                MessageManager.IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE - overhead();
+                MessageManager.IRC_PROTOCOL_MAX_MESSAGE_SIZE
+                    - MessageManager.SAFETY_NET - overhead();
             for (String nick : list)
             {
                 if (query.length() + nick.length() >= maxQueryLength)
@@ -518,6 +519,20 @@ class BasicPollerPresenceWatcher
         public void onError(final ErrorMessage msg)
         {
             super.onError(msg);
+            // Stop presence watcher task.
+            this.timer.cancel();
+            updateAll(IrcStatusEnum.OFFLINE);
+        }
+
+        /**
+         * In case a fatal error occurs, remove the listener.
+         *
+         * @param msg the error message
+         */
+        @Override
+        public void onClientError(ClientErrorMessage msg)
+        {
+            super.onClientError(msg);
             // Stop presence watcher task.
             this.timer.cancel();
             updateAll(IrcStatusEnum.OFFLINE);

@@ -37,6 +37,28 @@ public class ProtocolProviderFactoryIrcImpl
     public static final String CONTACT_PRESENCE_TASK = "CONTACT_PRESENCE_TASK";
 
     /**
+     * Property indicating SASL is enabled.
+     */
+    public static final String SASL_ENABLED = "SASL_ENABLED";
+
+    /**
+     * Property for SASL user name.
+     */
+    public static final String SASL_USERNAME = "SASL_USERNAME";
+
+    /**
+     * Property for SASL authorization role.
+     */
+    public static final String SASL_ROLE = "SASL_ROLE";
+
+    /**
+     * Property for indicating that DNS names should be resolved through the
+     * SOCKS proxy if a proxy server is configured.
+     */
+    public static final String RESOLVE_DNS_THROUGH_PROXY =
+        "RESOLVE_DNS_THROUGH_PROXY";
+
+ /**
      * Constructor.
      */
     public ProtocolProviderFactoryIrcImpl()
