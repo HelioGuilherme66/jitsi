@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.plugin.notificationwiring;
 
@@ -20,8 +31,8 @@ import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.neomedia.recording.*;
-import org.jitsi.service.protocol.event.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -1638,17 +1649,17 @@ public class NotificationManager
             switch (ev.getEventSeverity())
             {
             // Don't play alert sound for Info or warning.
-            case CallPeerSecurityMessageEvent.INFORMATION:
+            case SrtpListener.INFORMATION:
                 messageTitleKey = "service.gui.SECURITY_INFO";
                 break;
 
-            case CallPeerSecurityMessageEvent.WARNING:
+            case SrtpListener.WARNING:
                 messageTitleKey = "service.gui.SECURITY_WARNING";
                 break;
 
             // Security cannot be established! Play an alert sound.
-            case CallPeerSecurityMessageEvent.SEVERE:
-            case CallPeerSecurityMessageEvent.ERROR:
+            case SrtpListener.SEVERE:
+            case SrtpListener.ERROR:
                 messageTitleKey = "service.gui.SECURITY_ERROR";
                 fireNotification(CALL_SECURITY_ERROR);
                 break;

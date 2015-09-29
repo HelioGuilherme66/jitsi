@@ -1,7 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license. See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.plugin.globalproxyconfig;
 
@@ -330,17 +342,28 @@ public class GlobalProxyConfigForm
         }
         else
         {
-            configService.setProperty(
-                    ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
-                    ((ProxyInfo.ProxyType)typeCombo.getSelectedItem()).name());
-
+            // If there is no proxy server address or port entered skip the
+            // configuration, otherwise it can lead to unusable state of the
+            // providers with only proxy type setting and no server
+            // or port
             String serverAddress = serverAddressField.getText();
+            String port = portField.getText();
+
+            if(serverAddress == null || serverAddress.length() == 0
+                || port == null || port.length() == 0)
+            {
+                return;
+            }
+
+            configService.setProperty(
+                ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
+                ((ProxyInfo.ProxyType)typeCombo.getSelectedItem()).name());
+
             if(serverAddress != null && serverAddress.length() > 0)
                 configService.setProperty(
                     ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME,
                     serverAddress);
 
-            String port = portField.getText();
             if(port != null && port.length() > 0)
                 configService.setProperty(
                     ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME, port);

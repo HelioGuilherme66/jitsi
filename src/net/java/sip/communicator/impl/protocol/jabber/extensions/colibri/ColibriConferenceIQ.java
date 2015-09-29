@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
@@ -39,6 +50,13 @@ public class ColibriConferenceIQ
      * property of <tt>ColibriConferenceIQ</tt>.
      */
     public static final String ID_ATTR_NAME = "id";
+
+    /**
+     * The XML name of the <tt>name</tt> attribute of the Jitsi Videobridge
+     * <tt>conference</tt> IQ which represents the value of the <tt>name</tt>
+     * property of <tt>ColibriConferenceIQ</tt> if available.
+     */
+    public static final String NAME_ATTR_NAME = "name";
 
     /**
      * The XML COnferencing with LIghtweight BRIdging namespace of the Jitsi
@@ -94,6 +112,11 @@ public class ColibriConferenceIQ
      * carried by this IQ.
      */
     private boolean gracefulShutdown;
+
+    /**
+     * World readable name for the conference.
+     */
+    private String name;
 
     /**
      * Returns an error response for given <tt>IQ</tt> that is returned by
@@ -239,6 +262,10 @@ public class ColibriConferenceIQ
 
         if (id != null)
             xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
+                    .append('\'');
+
+        if (name != null)
+            xml.append(' ').append(NAME_ATTR_NAME).append("='").append(name)
                     .append('\'');
 
         List<Content> contents = getContents();
@@ -423,6 +450,24 @@ public class ColibriConferenceIQ
     public boolean isGracefulShutdown()
     {
         return gracefulShutdown;
+    }
+
+    /**
+     * The world readable name of the conference.
+     * @return name of the conference.
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Sets name.
+     * @param name the name to set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     /**
@@ -1022,6 +1067,18 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
                         .append(lastN).append('\'');
+            }
+
+            if (adaptiveLastN != null)
+            {
+                xml.append(' ').append(ADAPTIVE_LAST_N_ATTR_NAME).append("='")
+                        .append(adaptiveLastN).append('\'');
+            }
+
+            if (adaptiveSimulcast != null)
+            {
+                xml.append(' ').append(adaptiveSimulcast).append("='")
+                        .append(adaptiveSimulcast).append('\'');
             }
 
             // simulcastMode
@@ -2163,18 +2220,54 @@ public class ColibriConferenceIQ
          */
         public static final String TOKEN_ATTR_NAME = "token";
 
+        /**
+         * The target directory.
+         */
         private String directory;
 
-        private boolean state;
+        /**
+         * State of the recording..
+         */
+        private State state;
 
+        /**
+         * Access token.
+         */
         private String token;
 
-        public Recording(boolean state)
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         */
+        public Recording(String state)
+        {
+            this.state = State.parseString(state);
+        }
+
+        /**
+         * Construct new recording element.
+         * @param state
+         */
+        public Recording(State state)
         {
             this.state = state;
         }
 
-        public Recording(boolean state, String token)
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         * @param token the token to authenticate
+         */
+        public Recording(String state, String token)
+        {
+            this(State.parseString(state), token);
+        }
+        /**
+         * Construct new recording element.
+         * @param state the state
+         * @param token the token to authenticate
+         */
+        public Recording(State state, String token)
         {
             this(state);
 
@@ -2186,7 +2279,7 @@ public class ColibriConferenceIQ
             return directory;
         }
 
-        public boolean getState()
+        public State getState()
         {
             return state;
         }
@@ -2222,6 +2315,63 @@ public class ColibriConferenceIQ
                         .append(directory).append('\'');
             }
             xml.append("/>");
+        }
+
+        /**
+         * The recording state.
+         */
+        public enum State
+        {
+            /**
+             * Recording is started.
+             */
+            ON("on"),
+            /**
+             * Recording is stopped.
+             */
+            OFF("off"),
+            /**
+             * Recording is pending. Record has been requested but no conference
+             * has been established and it will be started once this is done.
+             */
+            PENDING("pending");
+
+            /**
+             * The name.
+             */
+            private String name;
+
+            /**
+             * Constructs new state.
+             * @param name
+             */
+            private State(String name)
+            {
+                this.name = name;
+            }
+
+            /**
+             * Returns state name.
+             * @return returns state name.
+             */
+            public String toString()
+            {
+                return name;
+            }
+
+            /**
+             * Parses state.
+             * @param s state name.
+             * @return the state found.
+             */
+            public static State parseString(String s)
+            {
+                if (ON.toString().equalsIgnoreCase(s))
+                    return ON;
+                else if (PENDING.toString().equalsIgnoreCase(s))
+                    return PENDING;
+                return OFF;
+            }
         }
     }
 

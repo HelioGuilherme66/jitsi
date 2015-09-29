@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.service.protocol;
 
@@ -185,7 +196,8 @@ public abstract class AccountID
 
     /**
      * Returns a name that can be displayed to the user when referring to this
-     * account.
+     * account. WARNING: This property actually refers to
+     * <code>ACCOUNT_DISPLAY_NAME</code>!
      *
      * @return A String identifying the user inside this particular service.
      */
@@ -481,29 +493,6 @@ public abstract class AccountID
     public String getServerAddress()
     {
         return getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
-    }
-
-    /**
-     * Get the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property.
-     *
-     * @return the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME}
-     *         property value.
-     */
-    public String getAccountDisplayName()
-    {
-        return getAccountPropertyString(
-                ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME);
-    }
-
-    /**
-     * Sets {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property value.
-     *
-     * @param displayName the account display name value to set.
-     */
-    public void setAccountDisplayName(String displayName)
-    {
-        setOrRemoveIfEmpty(ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
-                displayName);
     }
 
     /**
